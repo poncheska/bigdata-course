@@ -1,0 +1,32 @@
+#!/bin/bash
+
+dir=$1
+
+usage() {
+	echo "usage: $(basename $0) <your-output-directory>"
+}
+
+if test -z "$dir"; then
+	usage
+	exit 1
+fi
+
+ORIG_SPEC="/gfs/bigdata-course/datasets/ndbc-check/variance.txt"
+
+{
+	echo "Sorting your spectrum. Please, wait..."
+	echo "Press 'q' to exit."
+	unset LC_CTYPE
+    line_count_orig=$(wc -l < "$ORIG_SPEC")
+    line_count=$(hdfs dfs -cat $dir/part-* | wc -l)
+    if test "$line_count" != "$line_count_orig"
+    then
+        echo "No. of lines (original): $line_count_orig"
+        echo "No. of lines (yours): $line_count"
+    else
+	    diff -c \
+	    	<(hdfs dfs -cat $dir/part-* | env LC_ALL=C sort) \
+	    	<(env LC_ALL=C sort "$ORIG_SPEC") \
+	    && echo "Your spectrum is OK."
+    fi
+} | less -S

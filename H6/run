@@ -1,0 +1,6 @@
+#!/bin/sh
+input_directory=/bigdata-course/datasets/ndbc-small
+output_directory=$HOME/output-hadoop
+rm -rvf $output_directory
+hdfs dfs -rm -r  $HOME/output-hadoop
+yarn jar build/spectrum.jar $input_directory $output_directory
